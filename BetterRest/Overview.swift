@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct Overview: View {
+    
+    @State private var sleepAmount = 8.0
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
     }
 }
 
