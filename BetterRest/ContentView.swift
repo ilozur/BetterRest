@@ -57,15 +57,21 @@ struct ContentView: View {
                                 Text($0, format: .number)
                             }
                         }
-                        .pickerStyle(.wheel )
+                        .pickerStyle(.segmented )
                         .labelsHidden()
+                    }
+                }
+                
+                Section {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Your ideal bedtime is")
+                            .font(.headline)
+                        Text(verbatim: calculateBedTime())
+                            .font(.largeTitle)
                     }
                 }
             }
             .navigationTitle("BetterRest")
-            .toolbar {
-                Button("Calculate", action: calculateBedTime)
-            }
             .alert(alertTitle, isPresented: $showingAlert) {
                 Button("OK") { }
             } message: {
@@ -74,26 +80,36 @@ struct ContentView: View {
         }
     }
     
-    func calculateBedTime() {
+    func calculateBedTime() -> String{
+        var answer: String = ""
         do {
             let config = MLModelConfiguration()
             let model = try SleepCalculator(configuration: config)
             
-            let components = Calendar.current.dateComponents([.hour, .minute], from: wakeUp)
-            let hour = (components.hour ?? 0) * 60 * 60
-            let minute = (components.minute ?? 0) * 60
+            var components = Calendar.current.dateComponents([.hour, .minute], from: wakeUp)
+            var hour = (components.hour ?? 0) * 60 * 60
+            var minute = (components.minute ?? 0) * 60
             
             let prediction = try model.prediction(wake: Double(hour + minute), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
             
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            components = Calendar.current.dateComponents([.hour, .minute], from: sleepTime)
+            hour = components.hour ?? 0
+            minute = components.minute ?? 0
+            
+            let answerHour: String = hour < 9 ? "0\(String(hour))" : "\(String(hour))"
+            let answerMinute: String = minute < 9 ? "0\(String(minute))" : "\(String(minute))"
+            
+            answer = "\(answerHour):\(answerMinute)"
+            
+            
         } catch {
             alertTitle = "Error"
             alertMessage = "Sorry, there was a problem calculating your bedtime"
+            showingAlert = true
         }
-        showingAlert = true
+        return answer
     }
 }
 
