@@ -18,6 +18,8 @@ struct ContentView: View {
     @State private var alertMessage = ""
     @State private var showingAlert = false
     
+    @State private var coffeePossibly = [1, 2, 3, 4, 5, 6, 7, 8]
+    
     static var defaultWakeTime: Date {
         var components = DateComponents()
         components.hour = 7
@@ -50,8 +52,13 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("Daily coffee intake")
                             .font(.headline)
-                        
-                        Stepper(coffeeAmount == 1 ? "1 cup": "\(coffeeAmount) cups", value: $coffeeAmount, in: 1...20)
+                        Picker("Coffee", selection: $coffeeAmount) {
+                            ForEach (coffeePossibly, id: \.self) {
+                                Text($0, format: .number)
+                            }
+                        }
+                        .pickerStyle(.wheel )
+                        .labelsHidden()
                     }
                 }
             }
